@@ -90,6 +90,21 @@ class ToDo
 
 };
 
+void replaceSymbol(std::string& text, std::string symbol, std::string newSymbol){
+    
+    size_t index = 0;
+
+    while((index = text.find(symbol, index)) != std::string::npos)
+    {
+
+        text.replace(index, symbol.length(), newSymbol);
+
+        index += newSymbol.length();
+
+    }
+
+}
+
 std::vector<ToDo> listMaker(){
 
     std::string tegsName[6] = {"[id]", "[name]", "[list]", "[startDate]", "[done]", "[endDate]"};
@@ -178,6 +193,9 @@ std::vector<ToDo> listMaker(){
             }
 
         }
+
+        ToDo ngList(id, dateStart, name, lister, done);
+        list.push_back(ngList);
         
     }
 
@@ -185,18 +203,38 @@ std::vector<ToDo> listMaker(){
 
 }
 
-void replaceSymbol(std::string& text, std::string symbol, std::string newSymbol){
+void todoMenue(){
     
-    size_t index = 0;
-
-    while((index = text.find(symbol, index)) != std::string::npos)
+    while(true)
     {
 
-        text.replace(index, symbol.length(), newSymbol);
+        system("cls");
 
-        index += newSymbol.length();
+        std::vector<ToDo> mkList = listMaker();
+
+        for(ToDo list : mkList)
+        {
+            time_t tmSt = list.getDateStart();
+            std::string boolAnsw = list.done == true ? "Done" : "\u001b[31mNot done\u001b[37m";
+
+            std::cout << "#" << list.getID() << std::endl << "Started date: " << ctime(&tmSt) << list.name << std::endl << list.list << "\nStatus: " << boolAnsw << "\n\n";
+        }
+
+        std::cout << "|==========================|\n",
+                    "|                          |\n",
+                    "|     What do you want     |\n",
+                    "|          edit?           |\n",
+                    "|==========================|\n\nInput (enter Exit, if you want to leave): ";
+        
+        
+        std::string answ;
+        std::cin >> answ;
+
+        if(answ == "Exit")
+        {}
 
     }
+    
 
 }
 
@@ -283,35 +321,37 @@ void chekStartStats(){
 //Функция вывода главного меню и дальнейших вызовов подпунктов
 void pinMainMenue(){
 
-    std::cout <<"|=============Main menue=============|\n"
-                "|    [1]-List ToDo                   |\n"
-                "|    [2]-Create ToDo                 |\n"
-                "|    [3]-Edit ToDo                   |\n"
-                "|    [0]-Exit                        |\n"
-                "|====================================|\n\nINPUT: ";
-    int input;
-
-    std::cin >> input;
-
-    switch (input)
+    while (true)
     {
-    case 1:
-        listMaker();
-        break;
-    case 2:
-        break;
-    case 3:
-        wtriteInFile();
-        break;
-    case 4:
-        break;
-    default:
-        system("cls");
-        std::cout << "\u001b[31mThis isn`t correct\nTry more \u001b[37m";
-        std::this_thread::sleep_for(std::chrono::seconds(5));
-        system("cls");
-        pinMainMenue();
-        break;
+        
+        std::cout <<"|=============Main menue=============|\n"
+                    "|    [1]-List ToDo                   |\n"
+                    "|    [2]-Create ToDo                 |\n"
+                    "|    [0]-Exit                        |\n"
+                    "|====================================|\n\nINPUT: ";
+        int input;
+
+        std::cin >> input;
+
+        switch (input)
+        {
+        case 1:
+            todoMenue();
+            break;
+        case 2:
+            wtriteInFile();
+            break;
+        case 0:
+            continue;
+            break;
+        default:
+            system("cls");
+            std::cout << "\u001b[31mThis isn`t correct\nTry more \u001b[37m";
+            std::this_thread::sleep_for(std::chrono::seconds(2));
+            system("cls");
+            break;
+        }
+
     }
 
 }
