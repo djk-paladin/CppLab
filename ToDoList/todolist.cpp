@@ -48,34 +48,34 @@ class ToDo
         std::string list;
         bool done;
 
-    ToDo(time_t stDate, std::string headline, std::string text){
+    ToDo(time_t dateStart, std::string name, std::string list){
         
-        id = idCreater();
-        dateStart = stDate;
-        name = headline;
-        list = text;
-        done = false;
-        
-    }
-
-    ToDo(int ids, time_t stDate, std::string headline, std::string text, bool don){
-        
-        id = ids;
-        dateStart = stDate;
-        name = headline;
-        list = text;
-        done = don;
+        this -> id = idCreater();
+        this -> dateStart = dateStart;
+        this -> name = name;
+        this -> list = list;
+        this -> done = false;
         
     }
 
-    ToDo(int ids, time_t stDate, time_t endDate, std::string headline, std::string text, bool don){
+    ToDo(int id, time_t dateStart, std::string name, std::string list, bool done){
         
-        id = ids;
-        dateStart = stDate;
-        dateEnd = endDate;
-        name = headline;
-        list = text;
-        done = don;
+        this -> id = id;        
+        this -> dateStart = dateStart;
+        this -> name = name;
+        this -> list = list;
+        this -> done = done;
+        
+    }
+
+    ToDo(int id, time_t dateStart, time_t dateEnd, std::string name, std::string list, bool done){
+        
+        this -> id = id;
+        this -> dateStart = dateStart;
+        this -> dateEnd = dateEnd;
+        this -> name = name;
+        this -> list = list;
+        this -> done = done;
         
     }
 
@@ -86,6 +86,28 @@ class ToDo
     time_t getDateStart()
     {
         return dateStart;
+    }
+
+    bool operator == (const ToDo secToDo){
+
+        return  this -> id == secToDo.id &&
+                this -> dateStart == secToDo.dateStart &&
+                this -> dateEnd == secToDo.dateEnd &&
+                this -> name == secToDo.name &&
+                this -> list == secToDo.name &&
+                this -> done == secToDo.done;
+
+    }
+
+    bool operator != (const ToDo secToDo){
+
+        return  this -> id != secToDo.id ||
+                this -> dateStart != secToDo.dateStart ||
+                this -> dateEnd != secToDo.dateEnd ||
+                this -> name != secToDo.name ||
+                this -> list != secToDo.name ||
+                this -> done != secToDo.done;
+
     }
 
 };
@@ -105,9 +127,28 @@ void replaceSymbol(std::string& text, std::string symbol, std::string newSymbol)
 
 }
 
+void rewriteFile(std::vector<ToDo> upList){
+
+    std::ofstream reFile("resources/todolist.txt");
+
+    for(ToDo& item : upList)
+    {
+        
+        replaceSymbol(item.list, "\n", "[newLine]");
+
+        reFile << "[id]" << item.getID() 
+            << "[id][name]" << item.name 
+            << "[name][list]" << item.list 
+            << "[list][startDate]" << item.getDateStart()  
+            << "[startDate][done]" << item.done 
+            << "[done]" << std::endl;
+    }
+
+}
+
 std::vector<ToDo> listMaker(){
 
-    std::string tegsName[6] = {"[id]", "[name]", "[list]", "[startDate]", "[done]", "[endDate]"};
+    std::string tegsName[6] = {"[id]", "[name]", "[list]", "[startDate]", "[done]", "[dateEnd]"};
 
     system("cls");
 
@@ -128,7 +169,7 @@ std::vector<ToDo> listMaker(){
 
         size_t lastIndexEnd = 0;
 
-        for(std::string teg : tegsName)
+        for(std::string& teg : tegsName)
         {
 
             size_t index = lastIndexEnd;
@@ -203,14 +244,69 @@ std::vector<ToDo> listMaker(){
 
 }
 
-void todoMenue(){
+ToDo todoEdit(ToDo list){
+
+    system("cls");
     
+    time_t tmSt = list.getDateStart();
+    std::string boolAnsw = list.done == true ? "Done" : "\u001b[31mNot done\u001b[37m";
+
+    std::cout << "#" << list.getID() << std::endl 
+            << "Started date: " << ctime(&tmSt) << list.name << std::endl 
+            << list.list << "\nStatus: " << boolAnsw << "\n\n";
+
+    std::cout << "|===========================|\n"
+                 "|                           |\n"
+                 "|  [1] - Switch status      |\n"
+                 "|  [2] - Rewrite the task   |\n"
+                 "|  [3] - Return to list     |\n"
+                 "|                           |\n"
+                 "|===========================|\n\nInput: ";
+
+    int chose;
+    std::cin >> chose;
+    
+    std::string task;
+
+    switch (chose)
+    {
+        case 1:
+            list.done = !list.done;
+            break;
+        
+        case 2:
+
+            system("cls");
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "Input new task: ";
+            std::getline(std::cin, task, '.');
+            
+            list.list = task;
+
+            break;
+        
+        case 3:
+            break;
+        
+        default:
+            break;
+    }
+
+    return list;
+
+}
+
+void todoMenue(){
+    bool editedFlag = false;
+
+    std::vector<ToDo> mkList = listMaker();
+
     while(true)
     {
 
         system("cls");
 
-        std::vector<ToDo> mkList = listMaker();
+        
 
         for(ToDo list : mkList)
         {
@@ -220,23 +316,62 @@ void todoMenue(){
             std::cout << "#" << list.getID() << std::endl << "Started date: " << ctime(&tmSt) << list.name << std::endl << list.list << "\nStatus: " << boolAnsw << "\n\n";
         }
 
-        std::cout << "|==========================|\n",
-                    "|                          |\n",
-                    "|     What do you want     |\n",
-                    "|          edit?           |\n",
-                    "|==========================|\n\nInput (enter Exit, if you want to leave): ";
+        std::cout <<"|==========================|\n"
+                    "|                          |\n"
+                    "|     What do you want     |\n"
+                    "|          edit?           |\n"
+                    "|==========================|\n\nInput number of todo to edit (enter Exit, if you want to leave): ";
         
         
         std::string answ;
         std::cin >> answ;
 
-        if(answ == "Exit")
-        {}
+        
+        for(char& sym : answ)
+        {
+            sym = std::tolower(sym);
+        }
+
+        
+        try
+        {
+            if(answ == "exit")
+            {
+                system("cls");
+                break;
+            }
+            else if(std::stoi(answ) <= mkList.size())
+            {
+
+                ToDo edited = mkList[std::stoi(answ) - 1];
+                mkList[std::stoi(answ) - 1] = todoEdit(mkList[std::stoi(answ) - 1]);
+
+                if(edited != mkList[std::stoi(answ) - 1])
+                {
+                    editedFlag = true;
+                }
+            }
+        }
+        catch(const std::exception& e)
+        {
+
+            std::cout << "Somthing wrong" << std::endl;
+            continue;
+        }
 
     }
-    
+
+    if(editedFlag)
+    {
+        rewriteFile(mkList);
+
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+
+    }
 
 }
+
+
 
 //Функция которая собирает от пользователь ввод, после чего создает и возвращает класс задачи
 ToDo createToDo(){
@@ -267,7 +402,12 @@ void wtriteInFile(){
 
     std::ofstream FileWrite("resources/todolist.txt", std::ios::app);
 
-    FileWrite << "[id]" << writeList.getID() << "[id][name]" << writeList.name << "[name][list]" << writeList.list << "[list][startDate]" << writeList.getDateStart()  << "[startDate][done]" << writeList.done << "[done]" << std::endl; 
+    FileWrite << "[id]" << writeList.getID() 
+            << "[id][name]" << writeList.name 
+            << "[name][list]" << writeList.list 
+            << "[list][startDate]" << writeList.getDateStart()  
+            << "[startDate][done]" << writeList.done 
+            << "[done]" << std::endl; 
 
     FileWrite.close();
 
@@ -312,7 +452,7 @@ void chekStartStats(){
 
     std::cout << "\u001b[32mFile 'todolist.txt' exists\u001b[0m\n";
 
-    std::this_thread::sleep_for(std::chrono::seconds(4));
+    std::this_thread::sleep_for(std::chrono::seconds(2));
 
     
 
@@ -321,7 +461,9 @@ void chekStartStats(){
 //Функция вывода главного меню и дальнейших вызовов подпунктов
 void pinMainMenue(){
 
-    while (true)
+    bool flag = true;
+
+    while (flag)
     {
         
         std::cout <<"|=============Main menue=============|\n"
@@ -342,7 +484,7 @@ void pinMainMenue(){
             wtriteInFile();
             break;
         case 0:
-            continue;
+            flag = false;
             break;
         default:
             system("cls");
@@ -362,7 +504,7 @@ int main()
     system("cls");
 
     std::cout << "=============Welcome to ToDo list=============\n\n"
-                 "Checking system for starting programm"
+                 "Checking system for starting programm\n"
                  "Checking files for programm\n\n\n";
 
     chekStartStats();
