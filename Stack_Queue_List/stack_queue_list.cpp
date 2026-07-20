@@ -29,20 +29,18 @@ class Stack
 
         }
 
-        ~Stack(){
-            delete [] array;
-        }
-
     public:
         
                 
-    Stack(T typeData, int maxSize){
+    Stack(int maxSize){
         this -> maxSize = maxSize;
         this -> array = new T[maxSize];
         this -> lastPoint = -1;
     }
-
     
+    ~Stack(){
+        delete [] array;
+    }
 
     void push(T data){
 
@@ -112,6 +110,10 @@ class Queue
             this -> array = new T[maxSize];
         }
 
+        ~Queue(){
+            delete [] array;
+        }
+
         bool isFull(){
 
             bool checkFull = point >= maxSize;
@@ -127,25 +129,14 @@ class Queue
 
         int size(){
 
-            if(!isEmpty)
+            if(!isEmpty())
             {
                 return point-1;
-            }
-            else{
-                throw "array is empty!";
             }
 
         }
 
         void enqueu(T data){
-            // if(firstAdd)
-            // {
-
-            //     array = new T[maxSize];
-
-            //     firstAdd = false;
-
-            // }
 
             if(!isFull())
             {
@@ -196,6 +187,8 @@ int main()
 
     //test for Queue
 
+    //Positive tests
+
     Queue<int> qut(4);
 
     for(int i = 1; i <= 4; i++)
@@ -225,7 +218,43 @@ int main()
             std::cerr << e << '\n';
         }
         
+    }
+
+    //negative tests
+
+    for(int i = 1; i <= 5; i++)
+    {
+        try
+        {
+            std::cout << "is emty?" << qut.isEmpty() << std::endl;
+            qut.enqueu(i);
+            std::cout << "added " << i << std::endl;
+            std::cout << "is full?" << qut.isFull() << std::endl;
+        }
+        catch(const char* e)
+        {
+            std::cerr << e << '\n';
+        }
+    }
+
+    for(int i = 1; i <= 6; i++)
+    {
+        try
+        {
+            std::cout << "must dequed " << qut.peek() << std::endl;
+            qut.dequeue();
+            qut.dequeue();
+        }
+        catch(const char* e)
+        {
+            std::cerr << e << '\n';
+        }
         
     }
 
+    //Stack tests
+
+    //Positive tests
+
+    
 }
